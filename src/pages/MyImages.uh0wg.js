@@ -3,6 +3,7 @@ import wixUsers from "wix-users";
 import { myGetDownloadUrlFunction } from "backend/files-manager.web.js";
 import wixLocationFrontend from "wix-location-frontend";
 import wixLocation from "wix-location";
+import wixWindowFrontend from "wix-window-frontend";
 
 const myImageRepeater = "#imageRepeater";
 
@@ -67,15 +68,23 @@ function loadRepeater() {
 
 // Function to delete the image
 function deleteImage(imageId) {
-  wixData
-    .remove("Images", imageId)
-    .then(() => {
-      console.log("Image deleted successfully");
-      loadRepeater();
-    })
-    .catch((error) => {
-      console.error("Error deleting image:", error);
-    });
+  wixWindowFrontend.openLightbox("ConfirmDeletion").then((receivedData) => {
+    let isConfirm = receivedData;
+
+    console.log("Received data", isConfirm);
+
+    if (isConfirm) {
+      wixData
+        .remove("Images", imageId)
+        .then(() => {
+          console.log("Image deleted successfully");
+          loadRepeater();
+        })
+        .catch((error) => {
+          console.error("Error deleting image:", error);
+        });
+    }
+  });
 }
 
 // Function to download the image
