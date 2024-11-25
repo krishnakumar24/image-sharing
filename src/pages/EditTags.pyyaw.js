@@ -1,10 +1,12 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import { lightbox } from "wix-window-frontend";
 
 $w.onReady(function () {
-    // Write your JavaScript here
-
-    // To select an element by ID use: $w('#elementID')
-
-    // Click 'Preview' to run your code
+  let receivedData = lightbox.getContext();
+  $w("#yesBtn").onClick(() => clickHandler(true));
+  $w("#noBtn").onClick(() => clickHandler(false));
 });
+
+function clickHandler(isConfirm) {
+  lightbox.close(isConfirm);
+}
+
