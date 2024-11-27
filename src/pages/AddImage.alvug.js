@@ -1,14 +1,30 @@
+import { Images_afterInsert } from "backend/emailHooks.web.js";
 import wixData from "wix-data";
 import wixLocationFrontend from "wix-location-frontend";
+import { currentMember } from "wix-members-frontend";
 
 const loaderVideoSelector = "#loaderVideo";
 
 $w.onReady(function () {
   try {
     $w(loaderVideoSelector).hide();
-    $w("#addImageButton").onClick(() => {
+
+    /**
+     * On Submit Clicked
+     */
+    $w("#addImageButton").onClick(async () => {
       let result = $w("#addImgForm");
       console.log("result", result);
+
+      const options = {
+        fieldsets: ["PUBLIC"],
+      };
+      let user = await currentMember.getMember(options);
+      console.log("userData while adding image", user);
+      if (!user?._id) {
+        console.error("Error getting user while adding image");
+        return;
+      }
 
       if ($w("#imageUpload").value.length > 0) {
         //   $w("#text1").text = "Uploading " + $w("#uploadButton1").value[0].name;
@@ -31,15 +47,19 @@ $w.onReady(function () {
               //   tags: tags,
               description: description,
               isPublic: isPublic,
+              userId: user._id,
             };
 
-            console.log("newItem:", newItem);
+            console.log("newItem -- before inserting data: ", newItem);
 
             // Insert the item into the collection
             wixData
               .insert("Images", newItem)
               .then((result) => {
                 console.log("Item added:", result);
+
+                Images_afterInsert(user._id);
+
                 $w(loaderVideoSelector).hide();
                 if (isPublic.toLowerCase() === "public") {
                   wixLocationFrontend.to("/");

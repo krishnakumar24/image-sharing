@@ -66,7 +66,6 @@ export function updateHandler(imageId) {
         console.error("Error updating tags:", err);
       });
   } else {
-    //todo validation for form
     $w("#errorMessageText").show();
   }
 }

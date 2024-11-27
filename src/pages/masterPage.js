@@ -1,10 +1,36 @@
-// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
-// “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import { currentMember } from "wix-members-frontend";
+import { onLogin, currentUser } from "wix-users";
+import { authentication } from "wix-members-frontend";
 
 $w.onReady(function () {
-    // Write your JavaScript here
+  $w("#addImgBtn").hide();
 
-    // To select an element by ID use: $w('#elementID')
+  /**
+   * On Login Rem
+   */
+  authentication.onLogin(async (member) => {
+    const loggedInMember = await member.getMember();
+    console.log("authentication API data", loggedInMember);
+    if (loggedInMember?._id) {
+      $w("#addImgBtn").show();
+    }
+  });
 
-    // Click 'Preview' to run your code
+  const options = {
+    fieldsets: ["PUBLIC"],
+  };
+  let user = currentMember
+    .getMember(options)
+    .then((member) => {
+      console.log("member", member);
+      if (member) {
+        $w("#addImgBtn").show();
+      }
+
+      return member;
+    })
+    .catch((error) => {
+      console.error("Custom error : fetching current user in global");
+      console.error(error);
+    });
 });
