@@ -4,6 +4,7 @@ import { authentication } from "wix-members-frontend";
 
 $w.onReady(function () {
   $w("#addImgBtn").hide();
+  $w("#myImagesBtn").hide();
 
   /**
    * On Login Rem
@@ -13,6 +14,7 @@ $w.onReady(function () {
     console.log("authentication API data", loggedInMember);
     if (loggedInMember?._id) {
       $w("#addImgBtn").show();
+      $w("#myImagesBtn").show();
     }
   });
 
@@ -25,6 +27,7 @@ $w.onReady(function () {
       console.log("member", member);
       if (member) {
         $w("#addImgBtn").show();
+        $w("#myImagesBtn").show();
       }
 
       return member;
