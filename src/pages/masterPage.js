@@ -7,7 +7,7 @@ $w.onReady(function () {
   $w("#myImagesBtn").hide();
 
   /**
-   * On Login Rem
+   * On Login not refreshing issue workaround
    */
   authentication.onLogin(async (member) => {
     const loggedInMember = await member.getMember();
