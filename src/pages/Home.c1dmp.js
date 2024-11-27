@@ -35,10 +35,10 @@ $w.onReady(() => {
   // // console.log("gallerydetails", galleryDetails);
   // // Load initial set of images
   loadImages(skip, limit);
-  // // $w("#loadMoreButton").onClick(() => {
-  // //   skip += loadMoreCount; // Increase the skip count
-  // //   loadImages(skip, loadMoreCount); // Load more images
-  // // });
+  $w("#loadMoreButton").onClick(() => {
+    skip += loadMoreCount; // Increase the skip count
+    loadImages(skip, loadMoreCount); // Load more images
+  });
 });
 
 function loadImages(skipCount, limitCount) {
