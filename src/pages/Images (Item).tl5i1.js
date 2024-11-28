@@ -12,7 +12,7 @@ $w.onReady(function () {
    */
   $w("#editTagsBtn").hide();
   $w("#deleteButton").hide();
-
+  $w("#selectionTags").hide();
   /**
    * Since its Dynamic page, retrieving the data used to generate the page
    */
@@ -25,6 +25,18 @@ $w.onReady(function () {
     $w("#editTagsBtn").onClick(() => openEditTags());
     $w("#deleteButton").onClick(() => deleteImage());
 
+    console.log("currentData", currentData);
+
+    // SEO
+    $w("#mainImg").alt = currentData.title;
+
+    $w("#selectionTags").options = currentData.arraystring.map((tag) => {
+      return { label: tag, value: tag };
+    });
+    $w("#selectionTags").show();
+    // $w("#selectionTags").value = currentData.arraystring.map((tag) => {
+    //   return { label: tag, value: tag };
+    // });
     /**
      * On Login not refreshing issue workaround
      */

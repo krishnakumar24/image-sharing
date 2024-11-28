@@ -44,6 +44,7 @@ async function loadRepeater() {
         $w(myImageRepeater).data = results.items;
         $w(myImageRepeater).onItemReady(($item, itemData, index) => {
           $item("#imageItem").src = itemData.image;
+          $item("#imageItem").alt = itemData.title;
 
           $item("#deleteButton").onClick(() => {
             console.log(`delete clicked - ${itemData._id}`);
