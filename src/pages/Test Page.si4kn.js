@@ -1,19 +1,11 @@
-import { Images_afterInsert } from "backend/emailHooks.web.js";
 import { currentMember } from "wix-members-frontend";
 
 $w.onReady(function () {
-
-  
-  
-
-
-
-
-  // 
-  // 
-  // 
-  // 
-  // 
+  //
+  //
+  //
+  //
+  //
   /*
   const options = {
     fieldsets: ["FULL"],

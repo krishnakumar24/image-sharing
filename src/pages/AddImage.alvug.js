@@ -58,7 +58,7 @@ $w.onReady(function () {
               .then((result) => {
                 console.log("Item added:", result);
 
-                Images_afterInsert(user._id);
+                Images_afterInsert(user._id, isPublic);
 
                 $w(loaderVideoSelector).hide();
                 if (isPublic.toLowerCase() === "public") {

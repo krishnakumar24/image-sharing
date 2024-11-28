@@ -1,5 +1,6 @@
 import { currentMember } from "wix-members-frontend";
 import { onLogin, currentUser } from "wix-users";
+import wixLocation from "wix-location";
 import { authentication } from "wix-members-frontend";
 
 $w.onReady(function () {
@@ -15,7 +16,15 @@ $w.onReady(function () {
     if (loggedInMember?._id) {
       $w("#addImgBtn").show();
       $w("#myImagesBtn").show();
+      wixLocation.to("/");
     }
+  });
+
+  /**
+   * On Logout
+   */
+  authentication.onLogout(async () => {
+    wixLocation.to("/");
   });
 
   const options = {

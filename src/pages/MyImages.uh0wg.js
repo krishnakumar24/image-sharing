@@ -4,66 +4,68 @@ import { myGetDownloadUrlFunction } from "backend/files-manager.web.js";
 import wixLocationFrontend from "wix-location-frontend";
 import wixLocation from "wix-location";
 import wixWindowFrontend from "wix-window-frontend";
+import { currentMember } from "wix-members-frontend";
 
 const myImageRepeater = "#imageRepeater";
 
 $w.onReady(() => {
+  $w("#noImagesMsg").hide();
+  $w(myImageRepeater).hide();
+
   loadRepeater();
 });
 
-function loadRepeater() {
-  const user = wixUsers.currentUser;
+const getUser = async () => {
+  const options = {
+    fieldsets: ["PUBLIC"],
+  };
+  try {
+    let user = await currentMember.getMember(options);
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
-  if (user.loggedIn || true) {
-    // const userId = user.id; // Get the logged-in user's ID
+async function loadRepeater() {
+  let user = await getUser();
+  console.log(`Querying details ${user._id}`, user);
+  wixData
+    .query("Images")
+    .eq("userId", user._id) // Filter by the current user's ID
+    .eq("isPublic", "Private")
+    .find()
+    .then((results) => {
+      $w(myImageRepeater).show();
+      $w("#noImagesMsg").hide();
 
-    // console.log("userId", userId);
-    // Query the "Images" collection for images uploaded by the current user
-    wixData
-      .query("Images")
-      //   .eq("owner", userId) // Filter by the current user's ID
-      .eq("isPublic", "Private")
-      .find()
-      .then((results) => {
-        console.log("query Result ---", results);
-        if (results.items.length > 0) {
-          // Set the results as the repeater data
-          $w(myImageRepeater).data = results.items;
+      if (results.items.length > 0) {
+        $w(myImageRepeater).data = results.items;
+        $w(myImageRepeater).onItemReady(($item, itemData, index) => {
+          $item("#imageItem").src = itemData.image;
 
-          // Map each repeater item to the data
-          $w(myImageRepeater).onItemReady(($item, itemData, index) => {
-            // Bind the image data to the repeater's image element
-            $item("#imageItem").src = itemData.image;
-
-            // Bind the delete button click event
-            $item("#deleteButton").onClick(() => {
-              console.log(`delete clicked - ${itemData._id}`);
-              deleteImage(itemData._id);
-            });
-
-            // Bind the download button click event
-            $item("#downloadButton").onClick(() => {
-              console.log(`download clicked - ${itemData.image}`);
-              downloadImage(itemData.image);
-            });
+          $item("#deleteButton").onClick(() => {
+            console.log(`delete clicked - ${itemData._id}`);
+            deleteImage(itemData._id);
           });
 
-          // Ensure the repeater uses a 2-column layout
-          //   $w(myImageRepeater).style.gridTemplateColumns = "repeat(2, 1fr)"; // CSS grid layout with 2 columns
-        } else {
-          // Show a message if no images are found
-          //   $w("#noImagesMessage").show();
-          console.error("no images are found");
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to load images:", error);
-      });
-  } else {
-    // Show a message if the user isn't logged in
-    // $w("#loginMessage").show();
-    console.error("the user isn't logged innnn");
-  }
+          $item("#downloadButton").onClick(() => {
+            console.log(`download clicked - ${itemData.image}`);
+            downloadImage(itemData.image);
+          });
+        });
+
+        //   $w(myImageRepeater).style.gridTemplateColumns = "repeat(2, 1fr)"; // CSS grid layout with 2 columns
+      } else {
+        $w("#noImagesMsg").show();
+        $w(myImageRepeater).data = [];
+        console.error("no images are found");
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to load images:", error);
+    });
 }
 
 // Function to delete the image

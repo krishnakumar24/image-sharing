@@ -2,6 +2,8 @@ import { lightbox } from "wix-window-frontend";
 import wixData from "wix-data";
 
 $w.onReady(function () {
+  $w("#selectionTags").hide();
+
   let receivedData = lightbox.getContext();
   console.log(receivedData);
   const imageId = receivedData.id;
@@ -23,6 +25,7 @@ $w.onReady(function () {
         $w("#tagsInput").value = "";
         console.log(`No item found with ID ${imageId}`);
       }
+      $w("#selectionTags").show();
     })
     .catch((err) => {
       console.error("Error retrieving item:", err);
