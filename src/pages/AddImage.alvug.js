@@ -8,6 +8,25 @@ const loaderVideoSelector = "#loaderVideo";
 $w.onReady(function () {
   try {
     $w(loaderVideoSelector).hide();
+    $w("#imageUpload").required = true;
+    $w("#fileNeedErrorMsg").hide();
+    $w("#max4MsgNormal").show();
+    $w("#max4MsgError").hide();
+    $w("#imageUpload").onChange(() => $w("#fileNeedErrorMsg").hide()); // Used to remove the message once image is uploaded
+
+    $w("#tagsInput").onCustomValidation((value) => {
+      console.log("tagsInput value", value);
+      const tagArray = value.split(",").map((tag) => tag.trim());
+      // .filter((tag) => tag !== "");
+      const isTagsFieldIsInvalid = tagArray.length > 4;
+      if (isTagsFieldIsInvalid) {
+        $w("#max4MsgNormal").hide();
+        $w("#max4MsgError").show();
+      } else {
+        $w("#max4MsgNormal").show();
+        $w("#max4MsgError").hide();
+      }
+    });
 
     /**
      * On Submit Clicked
@@ -26,61 +45,81 @@ $w.onReady(function () {
         return;
       }
 
-      if ($w("#imageUpload").value.length > 0) {
-        //   $w("#text1").text = "Uploading " + $w("#uploadButton1").value[0].name;
+      const newTags = $w("#tagsInput")
+        .value.split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== "");
+      console.log("newTags", newTags);
 
-        $w(loaderVideoSelector).show();
+      // Check if any required fields are invalid
+      const isImageUploadEmpty = !($w("#imageUpload").value.length > 0);
+      const isTitleEmpty = !$w("#addImgTitleInput").value;
+      const isDescriptionEmpty = !$w("#descriptionInput").value;
+      const isTagsFieldIsInvalid = newTags.length > 4;
 
-        $w("#imageUpload")
-          .uploadFiles()
-          .then((uploadedFiles) => {
-            const title = $w("#addImgTitleInput").value; // Assuming titleInput is the ID of the title input field
-            const image = uploadedFiles[0].fileUrl; // Assuming imageUpload is the ID of the image upload button
-            // const tags = $w("#tagsInput").value.split(","); // Assuming tags are comma-separated in the input field
-            const description = $w("#descriptionInput").value;
-            const isPublic = $w("#isPublicInput").value; // Assuming isPublicToggle is a toggle or dropdown for public status
+      // Show error message for empty file upload
+      if (isImageUploadEmpty) $w("#fileNeedErrorMsg").show();
+      if (isTitleEmpty) $w("#addImgTitleInput").value = null;
+      if (isDescriptionEmpty) $w("#descriptionInput").value = null;
 
-            // Create an object to insert into the collection
-            const newItem = {
-              title: title,
-              image: image, // This should be a valid file path or File object
-              //   tags: tags,
-              description: description,
-              isPublic: isPublic,
-              userId: user._id,
-            };
-
-            console.log("newItem -- before inserting data: ", newItem);
-
-            // Insert the item into the collection
-            wixData
-              .insert("Images", newItem)
-              .then((result) => {
-                console.log("Item added:", result);
-
-                Images_afterInsert(user._id, isPublic);
-
-                $w(loaderVideoSelector).hide();
-                if (isPublic.toLowerCase() === "public") {
-                  wixLocationFrontend.to("/");
-                } else {
-                  wixLocationFrontend.to("/my-images");
-                }
-                // Add any success messages or redirects here
-              })
-              .catch((error) => {
-                console.error("Error adding item:", error);
-                // Handle errors here
-              });
-          })
-          .catch((uploadError) => {
-            //   $w("#text1").text = "File upload error";
-            console.log("File upload error: " + uploadError.errorCode);
-            console.log(uploadError.errorDescription);
-          });
-      } else {
-        //   $w("#text1").text = "Please choose a file to upload.";
+      // Prevent further execution if any field is invalid
+      if (
+        isImageUploadEmpty ||
+        isTitleEmpty ||
+        isDescriptionEmpty ||
+        isTagsFieldIsInvalid
+      ) {
+        return;
       }
+      $w(loaderVideoSelector).show();
+
+      $w("#imageUpload")
+        .uploadFiles()
+        .then((uploadedFiles) => {
+          const title = $w("#addImgTitleInput").value; // Assuming titleInput is the ID of the title input field
+          const image = uploadedFiles[0].fileUrl; // Assuming imageUpload is the ID of the image upload button
+          // const tags = $w("#tagsInput").value.split(","); // Assuming tags are comma-separated in the input field
+          const description = $w("#descriptionInput").value;
+          const isPublic = $w("#isPublicInput").value; // Assuming isPublicToggle is a toggle or dropdown for public status
+
+          //CMS Record Object
+          const newItem = {
+            title: title,
+            image: image,
+            description: description,
+            isPublic: isPublic,
+            arrayString: newTags,
+            userId: user._id,
+          };
+
+          console.log("newItem -- before inserting data: ", newItem);
+
+          // Insert the item into the collection
+          wixData
+            .insert("Images", newItem)
+            .then((result) => {
+              console.log("Item added:", result);
+
+              Images_afterInsert(user._id, isPublic);
+
+              $w(loaderVideoSelector).hide();
+              if (isPublic.toLowerCase() === "public") {
+                wixLocationFrontend.to("/");
+              } else {
+                wixLocationFrontend.to("/my-images");
+              }
+              // Add any success messages or redirects here
+            })
+            .catch((error) => {
+              console.error("Error adding item:", error);
+              // Handle errors here
+            });
+        })
+        .catch((uploadError) => {
+          //   $w("#text1").text = "File upload error";
+          console.log("File upload error: " + uploadError.errorCode);
+          console.log(uploadError.errorDescription);
+        });
     });
   } catch (e) {
     console.log("Exception", e);
