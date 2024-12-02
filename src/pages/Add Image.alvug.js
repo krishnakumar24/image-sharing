@@ -46,9 +46,6 @@ $w.onReady(function () {
      * On Submit Clicked
      */
     $w("#addImageButton").onClick(async () => {
-      let result = $w("#addImgForm");
-      console.log("result", result);
-
       const options = {
         fieldsets: ["PUBLIC"],
       };

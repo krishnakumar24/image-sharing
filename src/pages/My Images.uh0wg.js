@@ -8,12 +8,40 @@ import { currentMember } from "wix-members-frontend";
 
 const myImageRepeater = "#imageRepeater";
 
+//Pagingation Variables
+let currentPage = 0;
+const itemsPerPage = 6;
+let totalItems = 0;
+
 $w.onReady(() => {
   $w("#noImagesMsg").hide();
   $w(myImageRepeater).hide();
 
+  // Hide buttons initially
+  $w("#previousButton").hide();
+  $w("#nextButton").hide();
+
   loadRepeater();
+
+  // Add click event handlers for buttons
+  loadClickHandlers();
 });
+
+function loadClickHandlers() {
+  $w("#previousButton").onClick(() => {
+    if (currentPage > 0) {
+      currentPage--;
+      loadRepeater();
+    }
+  });
+
+  $w("#nextButton").onClick(() => {
+    if ((currentPage + 1) * itemsPerPage < totalItems) {
+      currentPage++;
+      loadRepeater();
+    }
+  });
+}
 
 const getUser = async () => {
   const options = {
@@ -31,11 +59,23 @@ const getUser = async () => {
 async function loadRepeater() {
   let user = await getUser();
   console.log(`Querying details ${user._id}`, user);
+
   wixData
     .query("Images")
-    .eq("userId", user._id) // Filter by the current user's ID
+    .eq("userId", user._id)
     .eq("isPublic", "Private")
-    .find()
+    .count()
+    .then((count) => {
+      totalItems = count;
+
+      return wixData
+        .query("Images")
+        .eq("userId", user._id)
+        .eq("isPublic", "Private")
+        .skip(currentPage * itemsPerPage)
+        .limit(itemsPerPage)
+        .find();
+    })
     .then((results) => {
       $w(myImageRepeater).show();
       $w("#noImagesMsg").hide();
@@ -57,11 +97,26 @@ async function loadRepeater() {
           });
         });
 
-        //   $w(myImageRepeater).style.gridTemplateColumns = "repeat(2, 1fr)"; // CSS grid layout with 2 columns
+        // Show or hide navigation buttons
+        $w("#previousButton").show();
+        $w("#nextButton").show();
+
+        // Enable or disable based on pagination state
+        if (currentPage === 0) {
+          $w("#previousButton").disable();
+        } else {
+          $w("#previousButton").enable();
+        }
+
+        if ((currentPage + 1) * itemsPerPage >= totalItems) {
+          $w("#nextButton").disable();
+        } else {
+          $w("#nextButton").enable();
+        }
       } else {
         $w("#noImagesMsg").show();
         $w(myImageRepeater).data = [];
-        console.error("no images are found");
+        console.error("No images are found");
       }
     })
     .catch((error) => {

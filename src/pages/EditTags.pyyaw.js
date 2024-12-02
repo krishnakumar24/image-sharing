@@ -3,18 +3,32 @@ import wixData from "wix-data";
 
 $w.onReady(function () {
   $w("#selectionTags").hide();
+  $w("#errorMessageText").hide();
 
   let receivedData = lightbox.getContext();
   console.log(receivedData);
-  const imageId = receivedData.id;
+  const imageId = receivedData.imageId;
   $w("#yesBtn").onClick(() => updateHandler(imageId));
-  $w("#noBtn").onClick(() => lightbox.close());
+  $w("#noBtn").onClick(() => lightbox.close([]));
 
+  $w("#tagsInput").onCustomValidation((value) => {
+    console.log("tagsInput value", value);
+    const tagArray = value.split(",").map((tag) => tag.trim());
+    // .filter((tag) => tag !== "");
+    const isTagsFieldIsInvalid = tagArray.length > 4;
+    if (isTagsFieldIsInvalid) {
+      $w("#errorMessageText").hide();
+    } else {
+      $w("#errorMessageText").show();
+    }
+  });
+
+  console.log("receivedData", receivedData);
   wixData
     .get("Images", imageId)
     .then((item) => {
       if (item) {
-        const tags = item.arraystring ?? []; // Replace 'Tags' with the actual field key
+        const tags = item.arraystring ?? [];
         console.log(`Tags for item ${imageId}:`, tags);
         $w("#selectionTags").options = tags.map((tag) => {
           return { label: tag, value: tag };
@@ -33,43 +47,34 @@ $w.onReady(function () {
 });
 
 export function updateHandler(imageId) {
-  const commaCount = ($w("#tagsInput").value.match(/,/g) || []).length;
+  const newTags = $w("#tagsInput")
+    .value.split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== "");
 
-  if (commaCount <= 3) {
-    $w("#errorMessageText").hide();
+  // Fetch the current data for the image
+  console.log("newTags Value from:", newTags);
+  wixData
+    .get("Images", imageId)
+    .then((imageData) => {
+      // Ensure Tags field is an array
+      let updatedTags = imageData.Tags || [];
 
-    const newTags = $w("#tagsInput")
-      .value.trim()
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag !== "");
+      // Merge new tags, ensuring no duplicates
+      updatedTags = [...new Set([...updatedTags, ...newTags])];
 
-    // Fetch the current data for the image
-    console.log("newTags Value from:", newTags);
-    wixData
-      .get("Images", imageId)
-      .then((imageData) => {
-        // Ensure Tags field is an array
-        let updatedTags = imageData.Tags || [];
+      // Update the image data
+      //   imageData.Tags = updatedTags;
+      imageData.arraystring = updatedTags;
+      lightbox.close(updatedTags);
 
-        // Merge new tags, ensuring no duplicates
-        updatedTags = [...new Set([...updatedTags, ...newTags])];
-
-        // Update the image data
-        //   imageData.Tags = updatedTags;
-        imageData.arraystring = updatedTags;
-        lightbox.close();
-
-        return wixData.update("Images", imageData);
-      })
-      .then(() => {
-        console.log("Tags added successfully.");
-      })
-      .catch((err) => {
-        console.error("Error updating tags:", err);
-      });
-  } else {
-    $w("#errorMessageText").show();
-  }
+      return wixData.update("Images", imageData);
+    })
+    .then(() => {
+      console.log("Tags added successfully.");
+    })
+    .catch((err) => {
+      console.error("Error updating tags:", err);
+    });
 }
 

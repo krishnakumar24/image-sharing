@@ -37,11 +37,16 @@ $w.onReady(function () {
     // $w("#selectionTags").value = currentData.arraystring.map((tag) => {
     //   return { label: tag, value: tag };
     // });
+
     /**
      * On Login not refreshing issue workaround
      */
     authentication.onLogin(async (member) => {
       const loggedInMember = await member.getMember();
+      console.log(`editTagsBtn --- authentication -----`, {
+        loggedInMember,
+        currentData,
+      });
       if (loggedInMember?._id) {
         $w("#editTagsBtn").show();
 
@@ -56,7 +61,10 @@ $w.onReady(function () {
     currentMember
       .getMember(options)
       .then((member) => {
-        console.log("member", member);
+        console.log(`editTagsBtn --- currentMember -----`, {
+          member,
+          currentData,
+        });
         if (member) {
           $w("#editTagsBtn").show();
 
@@ -76,10 +84,8 @@ $w.onReady(function () {
 
     wixWindowFrontend
       .openLightbox("EditTags", { imageId })
-      .then((receivedData) => {
-        let isUpdate = receivedData;
-
-        console.log("Received data", isUpdate);
+      .then((updatedTags) => {
+        refreshTagsData(updatedTags);
       });
   }
 
@@ -106,6 +112,18 @@ $w.onReady(function () {
           });
       }
     });
+  }
+
+  function refreshTagsData(updatedTags) {
+    console.log("data refreshing... tags data", updatedTags);
+    if (updatedTags && updatedTags.length > 0) {
+      $w("#selectionTags").options = updatedTags.map((tag) => {
+        return { label: tag, value: tag };
+      });
+      $w("#selectionTags").show();
+    } else {
+      $w("#selectionTags").hide();
+    }
   }
 });
 
