@@ -47,7 +47,7 @@ $w.onReady(function () {
      */
     $w("#addImageButton").onClick(async () => {
       const options = {
-        fieldsets: ["PUBLIC"],
+        fieldsets: ["FULL"],
       };
       let user = await currentMember.getMember(options);
       console.log("userData while adding image", user);
@@ -107,7 +107,7 @@ $w.onReady(function () {
         .then((result) => {
           console.log("Item added:", result);
 
-          Images_afterInsert(user._id, isPublic);
+          Images_afterInsert(user._id, isPublic, user.loginEmail);
 
           $w(loaderVideoSelector).hide();
           if (isPublic.toLowerCase() === "public") {

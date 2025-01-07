@@ -1,12 +1,13 @@
 import wixData from "wix-data";
 import { triggeredEmails } from "wix-crm-backend";
 import { Permissions, webMethod } from "wix-web-module";
+import { sendEmailViaApi } from "./email.web";
 
 // Hook for the `Images` collection
 
 export const Images_afterInsert = webMethod(
   Permissions.Anyone,
-  async (userId, isPublic) => {
+  async (userId, isPublic, userEmail) => {
     console.log("Images_afterInsert", userId);
     console.log("isPublic from emailHooks", isPublic.toLowerCase());
     // Query to check if it's the user's first public image
@@ -46,7 +47,7 @@ export const Images_afterInsert = webMethod(
               });
 
             // Send MAIL
-            sendCongratulatoryEmail(userId); // Call the email function
+            sendCongratulatoryEmail(userEmail); // Call the email function
           }
         })
         .catch((err) => {
@@ -57,17 +58,11 @@ export const Images_afterInsert = webMethod(
 );
 
 // Function to send the congratulatory email
-function sendCongratulatoryEmail(userId) {
-  triggeredEmails
-    .emailMember("CongratulatoryEmail", userId, {
-      variables: {
-        SITE_URL: "https://akkg21.wixstudio.com/imgshare",
-      },
-    })
-    .then(() => {
-      console.log("Email sent successfully!");
-    })
-    .catch((err) => {
-      console.error("Error sending email:", err);
-    });
+async function sendCongratulatoryEmail(email) {
+  console.log("SENDING MAIL TO " + email);
+  await sendEmailViaApi(
+    email,
+    "Congratulations on Your First Image Upload!",
+    `<p>Congratulations on uploading your first image!</p>`
+  );
 }
