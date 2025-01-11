@@ -32,13 +32,9 @@ function loadImages(skipCount, limitCount) {
     .limit(limitCount)
     .find()
     .then((results) => {
-      console.log("images query results in home page", results);
-
-      console.log(`HOME PAGE  --> results.items.length`, results.items.length);
       if (results?.items && results.items.length > 0) {
         images = images.concat(
           results.items.map((item) => {
-            console.log(`item["link-images-title"]`, item["link-images-title"]);
             return {
               src: item.image,
               title: item.title || "",
@@ -49,10 +45,6 @@ function loadImages(skipCount, limitCount) {
           })
         );
 
-        console.log(
-          `images used in the home gallery ------------------`,
-          images
-        );
         // @ts-ignore gallery api not recognized
         $w("#homeGallery").items = images;
 
