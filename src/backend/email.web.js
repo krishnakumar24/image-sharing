@@ -1,7 +1,7 @@
+import secrets from "wix-secrets-backend";
 export async function sendEmailViaApi(email, subject, body, html) {
-  const apiUrl = "https://api.mailersend.com/v1/email"; // Replace with your API endpoint
-  const apiKey =
-    "mlsn.29a2a8539f6cb27063d67c0acf650b0fa11fdbe72838e945a3dbf1e5670f3358"; // Add your API key or authentication token
+  const apiUrl = "https://api.mailersend.com/v1/email";
+  const apiKey = await secrets.getSecret("mailApiKey");
 
   const emailData = {
     from: {
@@ -22,7 +22,7 @@ export async function sendEmailViaApi(email, subject, body, html) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`, // If your API requires Bearer token authentication
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(emailData),
     });
