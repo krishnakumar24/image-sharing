@@ -132,7 +132,6 @@ export const checkUserWeek = webMethod(Permissions.Anyone, async () => {
       .find();
 
     const members = result.items;
-    console.log("RESULT OF MEMBERS", result);
 
     // Iterate through the members and send emails
     for (const member of members) {
