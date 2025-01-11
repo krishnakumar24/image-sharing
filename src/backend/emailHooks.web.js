@@ -1,5 +1,4 @@
 import wixData from "wix-data";
-import { triggeredEmails } from "wix-crm-backend";
 import { Permissions, webMethod } from "wix-web-module";
 import { sendEmailViaApi } from "./email.web";
 
