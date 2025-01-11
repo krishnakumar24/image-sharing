@@ -84,7 +84,7 @@ async function sendCongratulatoryEmail(email) {
   );
 }
 async function sendMailForSevenDays(email) {
-  console.log("SENDING MAIL TO " + email + "FOR SEVEN DAYS");
+  console.log("SENDING MAIL TO " + email + " FOR SEVEN DAYS");
   await sendEmailViaApi(
     email,
     "🎉 7 Days with ImgShare - You're Amazing!",
@@ -117,8 +117,7 @@ export const checkUserWeek = webMethod(Permissions.Anyone, async () => {
   try {
     const currentDate = new Date();
     const sevenDaysAgo = new Date();
-    // sevenDaysAgo.setDate(currentDate.getDate() - 7);
-    sevenDaysAgo.setDate(currentDate.getDate() - 89);
+    sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
     // Format to ignore time (just match the date part)
     sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -140,7 +139,6 @@ export const checkUserWeek = webMethod(Permissions.Anyone, async () => {
       const email = member.loginEmail;
 
       if (email) {
-        // console.log("EMAIL WILL BE SENT TO THE MAIL -- ", email);
         await sendMailForSevenDays(email);
         console.log(`Email sent to: ${email}`);
       } else {
